@@ -56,11 +56,14 @@ int main(int argc, char **argv){
 
   /*---- Accept call creates a new socket for the incoming connection ----*/
   addr_size = sizeof serverStorage;
-  newSocket = accept(welcomeSocket, (struct sockaddr *) &serverStorage, &addr_size);
 
   // communication starts from here
 
-  while (num != -1) {
+  int valread;
+  while (1) {
+
+    newSocket = accept(welcomeSocket, (struct sockaddr *) &serverStorage, &addr_size);
+
     // receive an integer from the client
     recv(newSocket, &num, sizeof(num), 0);
     printf("Integer received: %d\n",ntohl(num));   
@@ -69,6 +72,14 @@ int main(int argc, char **argv){
     // send a reply message to the client
     strcpy(msg, "Integer received");
     send(newSocket, msg, sizeof(msg), 0);
+
+    // check connection
+    if ((valread = read(newSocket, &num, sizeof(num))) == 0) {
+        printf("Client disconnected\n");
+        break;
+    }
+    else continue;
+    
   }
 
   close(newSocket);

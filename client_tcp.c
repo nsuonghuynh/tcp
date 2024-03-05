@@ -25,7 +25,6 @@ int main(int argc, char **argv){
   struct hostent *hostnm;
 
   uint32_t num, cnum;
-  char cont_op; 
   char msg[30];
 
   /*---- Create the socket. The three arguments are: ----*/
@@ -53,35 +52,50 @@ int main(int argc, char **argv){
 
   /*---- Connect the socket to the server using the address struct ----*/
   addr_size = sizeof serverAddr;
-  if (connect(clientSocket, (struct sockaddr *) &serverAddr, addr_size) == 0)
-	  printf("Connected to server successfully.\n");
-  else printf("Couldn't connect to server.\n");
+  if (connect(clientSocket, (struct sockaddr *) &serverAddr, addr_size) < 0){
+    perror("Connection failed");
+    exit(EXIT_FAILURE);
+  }
+	
+  printf("Connected to server.\n");
 
 
 // communication starts from here
 
 // send an integer to the server
-  printf("Begin communication? (y/n):");
-  scanf("%c", &cont_op);
+  int count = 0;
+  int valread;
 
-  while (cont_op == 'y' || cont_op =='Y') {
-    
+  while(1) {
+
     printf("enter an integer:");
     scanf("%d", &num);
-
+    
     /* htonl stands for "host to network long" and is a function used in networking applications to convert values from host byte order to network byte order.*/
     cnum = htonl(num);
-    printf("Attempting to send integer: %d \n", num);
-    if (send(clientSocket, &cnum, sizeof(cnum), 0) != -1)
-      printf("Sent integer to server successfullly.\n");
-    else printf("Error sending integer.\n");
+   
+    send(clientSocket, &cnum, sizeof(cnum), 0);
+    memset(&num, 0, sizeof(num));
 
     // receive a reply message from the server
-    recv(clientSocket, msg, sizeof(msg), 0);
-    printf("%s\n", msg);
+    if (recv(clientSocket, msg, sizeof(msg), 0) <= 0) {
+      printf("Server disconnected\n");
+      break;
+    }
+    printf("Server message: %s\n", msg);
 
-    printf("Send another message? (y/n):");
-    scanf("%c", &cont_op);
+    // recv(clientSocket, msg, sizeof(msg), 0);
+    // printf("Server message: %s\n", msg);
+
+    // if ((valread = read(clientSocket, &cnum, sizeof(cnum))) == 0) {
+    //   printf("Server disconnected\n");
+    //   break;
+    // }
+    // else continue;
+
+    //Track number of loops
+    count++;
+    printf("Now at the end of loop# %d\n",count);
   }
 
   close(clientSocket);
