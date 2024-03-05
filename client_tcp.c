@@ -25,6 +25,7 @@ int main(int argc, char **argv){
   struct hostent *hostnm;
 
   uint32_t num, cnum;
+  char cont_op; 
   char msg[30];
 
   /*---- Create the socket. The three arguments are: ----*/
@@ -59,20 +60,29 @@ int main(int argc, char **argv){
 
 // communication starts from here
 
-   // send an integer to the server
-  printf("enter an integer:");
-  scanf("%d", &num);
+// send an integer to the server
+  printf("Begin communication? (y/n):");
+  scanf("%c", &cont_op);
 
-/* htonl stands for "host to network long" and is a function used in networking applications to convert values from host byte order to network byte order.*/
-  cnum = htonl(num);
-  printf("Attempting to send integer: %d \n", num);
-  if (send(clientSocket, &cnum, sizeof(cnum), 0) != -1)
-	  printf("Sent integer to server successfullly.\n");
-  else printf("Error sending integer.\n");
+  while (cont_op == 'y' || cont_op =='Y') {
+    
+    printf("enter an integer:");
+    scanf("%d", &num);
 
-  // receive a reply message from the server
-  recv(clientSocket, msg, sizeof(msg), 0);
-  printf("%s\n", msg);
+    /* htonl stands for "host to network long" and is a function used in networking applications to convert values from host byte order to network byte order.*/
+    cnum = htonl(num);
+    printf("Attempting to send integer: %d \n", num);
+    if (send(clientSocket, &cnum, sizeof(cnum), 0) != -1)
+      printf("Sent integer to server successfullly.\n");
+    else printf("Error sending integer.\n");
+
+    // receive a reply message from the server
+    recv(clientSocket, msg, sizeof(msg), 0);
+    printf("%s\n", msg);
+
+    printf("Send another message? (y/n):");
+    scanf("%c", &cont_op);
+  }
 
   close(clientSocket);
 

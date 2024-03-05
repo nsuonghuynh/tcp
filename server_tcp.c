@@ -60,13 +60,16 @@ int main(int argc, char **argv){
 
   // communication starts from here
 
-  // receive an integer from the client
-  recv(newSocket, &num, sizeof(num), 0);
-  printf("Integer received: %d\n",ntohl(num));   
+  while (num != -1) {
+    // receive an integer from the client
+    recv(newSocket, &num, sizeof(num), 0);
+    printf("Integer received: %d\n",ntohl(num));   
 
-  // send a reply message to the client
-  strcpy(msg, "Integer received");
-  send(newSocket, msg, sizeof(msg), 0);
+
+    // send a reply message to the client
+    strcpy(msg, "Integer received");
+    send(newSocket, msg, sizeof(msg), 0);
+  }
 
   close(newSocket);
   close(welcomeSocket);
